@@ -18,12 +18,19 @@ public class Board extends GridPane {
         this.grid = new Field[SIZE][SIZE];
 
         for (int i = 0; i < SIZE; ++i)
-            for (int j = 0; j < SIZE; ++j) {
-                setCell(i, j);
+            for (int j = 0; j < SIZE; ++j)
+                this.setCell(i, j);
 
+        this.setGrid();
+        this.setStyle("-fx-border-color: black; -fx-border-width: 2px;");
+    }
+    private void setActionOnClick() {
+        for (int i = 0; i < SIZE; ++i)
+            for (int j = 0; j < SIZE; ++j) {
                 int finalI = i, finalJ = j;
 
                 this.grid[i][j].setOnAction(event -> {
+                    System.out.println(grid[finalI][finalJ].getAttachment());
                     if (attacker == null) {
                         attacker = grid[finalI][finalJ];
                         return;
@@ -38,13 +45,15 @@ public class Board extends GridPane {
                     }
                 });
             }
-
-        setGrid();
-        this.setStyle("-fx-border-color: black; -fx-border-width: 2px;");
     }
 
     private void setCell(int i, int j) {
-        FigureAttachment color = (j >= SIZE / 2 ? FigureAttachment.WHITE : FigureAttachment.BLACK);
+        FigureAttachment color = FigureAttachment.NEUTRAL;
+        if (j == SIZE - 1 || j == SIZE - 2) {
+            color = FigureAttachment.WHITE;
+        } else if (j == 0 || j == 1) {
+            color = FigureAttachment.BLACK;
+        }
         if (i == 4 && (j == 0 || j == SIZE - 1)) {
             this.grid[i][j] = new Field(new King(), i, j, color);
             return;
@@ -73,20 +82,20 @@ public class Board extends GridPane {
 
     }
     private void setGrid() {
-        getChildren().clear();
+        this.getChildren().clear();
+        this.setActionOnClick();
         for (int i = 0; i < SIZE; ++i)
             for (int j = 0; j < SIZE; ++j)
-                add(this.grid[i][j], i, j);
+                this.add(this.grid[i][j], i, j);
     }
 
     private void attack(Field attacker, Field defender) {
-        System.out.println(attacker.canAttack(defender));
         if (!attacker.canAttack(defender)) {
             return;
         }
         grid[defender.getX()][defender.getY()] = new Field(attacker.getFigure(), defender.getX(), defender.getY(), attacker.getAttachment());
         grid[attacker.getX()][attacker.getY()] = new Field(defender.getFigure(), attacker.getX(), attacker.getY(), defender.getAttachment());
-        setGrid();
+        this.setGrid();
     }
 
 }
